@@ -1,5 +1,3 @@
-package tp;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -167,6 +165,15 @@ public class BibliothequeApp extends JFrame {
         title.setFont(new Font("Arial", Font.BOLD, 24));
         panel.add(title, BorderLayout.NORTH);
 
+        JLabel description = new JLabel(
+            "<html><p style='text-align: center;'>"
+            + "Cette application permet de gérer les livres, les membres, "
+            + "et leurs emprunts.</p></html>",
+            JLabel.CENTER
+        );
+        description.setFont(new Font("Arial", Font.PLAIN, 16));
+        panel.add(description, BorderLayout.CENTER);
+
         return panel;
     }
 
@@ -185,13 +192,24 @@ public class BibliothequeApp extends JFrame {
         panel.add(txtAdresse);
         panel.add(new JLabel("Téléphone :"));
         panel.add(txtTelephone);
-        panel.add(new JLabel(""));
+        panel.add(new JLabel("")); // Placeholder
         panel.add(btnAjouter);
 
         btnAjouter.addActionListener(e -> {
-            String nom = txtNom.getText();
-            String adresse = txtAdresse.getText();
-            String telephone = txtTelephone.getText();
+            String nom = txtNom.getText().trim();
+            String adresse = txtAdresse.getText().trim();
+            String telephone = txtTelephone.getText().trim();
+        
+            if (nom.isEmpty() || adresse.isEmpty() || telephone.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Tous les champs doivent être remplis.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        
+            if (!telephone.matches("0\\d{9}")) {
+                JOptionPane.showMessageDialog(this, "Le numéro de téléphone doit commencer par 0 et contenir exactement 10 chiffres.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        
             Membre membre = new Membre(nom, adresse, telephone);
             membres.add(membre);
             cmbMembres.addItem(membre);
@@ -199,6 +217,7 @@ public class BibliothequeApp extends JFrame {
             txtNom.setText("");
             txtAdresse.setText("");
             txtTelephone.setText("");
+            cardLayout.show(mainPanel, "Accueil");
         });
 
         return panel;
@@ -207,65 +226,108 @@ public class BibliothequeApp extends JFrame {
     private JPanel createAjouterLivrePanel() {
         JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
         panel.setBackground(new Color(250, 240, 230));
-
+    
         JTextField txtTitre = new JTextField();
         JTextField txtAuteur = new JTextField();
-        JTextField txtCategorie = new JTextField();
+        String[] categories = {
+            "Roman", "Science-fiction", "Fantasy", "Biographie", 
+            "Histoire", "Informatique", "Philosophie", 
+            "Psychologie", "Art", "Autre"
+        };
+        JComboBox<String> cmbCategorie = new JComboBox<>(categories);
         JButton btnAjouter = new JButton("Ajouter");
-
+    
         panel.add(new JLabel("Titre du livre :"));
         panel.add(txtTitre);
         panel.add(new JLabel("Auteur :"));
         panel.add(txtAuteur);
         panel.add(new JLabel("Catégorie :"));
-        panel.add(txtCategorie);
+        panel.add(cmbCategorie);
         panel.add(new JLabel(""));
         panel.add(btnAjouter);
-
+    
         btnAjouter.addActionListener(e -> {
-            String titre = txtTitre.getText();
-            String auteur = txtAuteur.getText();
-            String categorie = txtCategorie.getText();
+            String titre = txtTitre.getText().trim();
+            String auteur = txtAuteur.getText().trim();
+            String categorie = (String) cmbCategorie.getSelectedItem();
+        
+            if (titre.isEmpty() || auteur.isEmpty() || categorie.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Tous les champs doivent être remplis.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        
             Livre livre = new Livre(titre, auteur, categorie);
             livres.add(livre);
             cmbLivres.addItem(livre);
             JOptionPane.showMessageDialog(this, "Livre ajouté avec succès !");
             txtTitre.setText("");
             txtAuteur.setText("");
-            txtCategorie.setText("");
+            cmbCategorie.setSelectedIndex(0);
+            cardLayout.show(mainPanel, "Accueil");
         });
-
+        
         return panel;
-    }
+    }    
 
     private JPanel createAjouterEmpruntPanel() {
-        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
         panel.setBackground(new Color(230, 250, 250));
-
+    
         cmbMembres = new JComboBox<>(membres.toArray(new Membre[0]));
         cmbLivres = new JComboBox<>(livres.toArray(new Livre[0]));
+    
+        JTextField txtDateEmprunt = new JTextField("YYYY-MM-DD");
+        JTextField txtDateRetour = new JTextField("YYYY-MM-DD");
+    
         JButton btnAjouter = new JButton("Ajouter");
-
+    
         panel.add(new JLabel("Sélectionnez un membre :"));
         panel.add(cmbMembres);
         panel.add(new JLabel("Sélectionnez un livre :"));
         panel.add(cmbLivres);
+        panel.add(new JLabel("Date d'emprunt (YYYY-MM-DD) :"));
+        panel.add(txtDateEmprunt);
+        panel.add(new JLabel("Date de retour (YYYY-MM-DD) :"));
+        panel.add(txtDateRetour);
         panel.add(new JLabel(""));
         panel.add(btnAjouter);
-
+    
         btnAjouter.addActionListener(e -> {
             Membre membre = (Membre) cmbMembres.getSelectedItem();
             Livre livre = (Livre) cmbLivres.getSelectedItem();
-            if (membre != null && livre != null) {
-                Date dateEmprunt = new Date();
-                Date dateRetour = new Date(dateEmprunt.getTime() + (7L * 24 * 60 * 60 * 1000));
+            String dateEmpruntStr = txtDateEmprunt.getText().trim();
+            String dateRetourStr = txtDateRetour.getText().trim();
+        
+            if (membre == null || livre == null || dateEmpruntStr == null || dateRetourStr == null) {
+                JOptionPane.showMessageDialog(this, "Tous les champs doivent être remplis.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        
+            try {
+                Date dateEmprunt = new java.text.SimpleDateFormat("yyyy-MM-dd").parse(dateEmpruntStr);
+                Date dateRetour = new java.text.SimpleDateFormat("yyyy-MM-dd").parse(dateRetourStr);
+        
+                Date aujourdhui = new Date();
+                if (dateEmprunt.before(aujourdhui)) {
+                    JOptionPane.showMessageDialog(this, "La date d'emprunt ne peut pas être dans le passé.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+        
+                if (!dateRetour.after(dateEmprunt)) {
+                    JOptionPane.showMessageDialog(this, "La date de retour doit être strictement après la date d'emprunt.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+        
                 emprunts.add(new Emprunt(membre, livre, dateEmprunt, dateRetour));
                 JOptionPane.showMessageDialog(this, "Emprunt ajouté avec succès !");
-            } else {
-                JOptionPane.showMessageDialog(this, "Veuillez sélectionner un membre et un livre.");
+                txtDateEmprunt.setText("YYYY-MM-DD");
+                txtDateRetour.setText("YYYY-MM-DD");
+                cardLayout.show(mainPanel, "Accueil");
+            } catch (java.text.ParseException ex) {
+                JOptionPane.showMessageDialog(this, "Les dates doivent être au format yyyy-MM-dd.", "Erreur", JOptionPane.ERROR_MESSAGE);
             }
         });
-
+        
         return panel;
     }
 
@@ -298,3 +360,4 @@ public class BibliothequeApp extends JFrame {
         SwingUtilities.invokeLater(() -> new BibliothequeApp().setVisible(true));
     }
 }
+

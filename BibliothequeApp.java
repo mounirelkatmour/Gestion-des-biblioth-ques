@@ -116,16 +116,18 @@ public class BibliothequeApp extends JFrame {
         setLayout(new BorderLayout());
 
         // Barre de navigation
-        JPanel navBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        navBar.setBackground(new Color(50, 50, 150));
-        navBar.setPreferredSize(new Dimension(800, 50));
-
+        JPanel navBar = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        navBar.setBackground(new Color(150, 75, 0));
+        
         JButton btnAccueil = new JButton("Accueil");
         JButton btnAjouterMembre = new JButton("Ajouter un Membre");
         JButton btnAjouterLivre = new JButton("Ajouter un Livre");
         JButton btnAjouterEmprunt = new JButton("Ajouter un Emprunt");
         JButton btnAfficherEmprunts = new JButton("Afficher les Emprunts");
         JButton btnQuitter = new JButton("Quitter");
+        
+        int buttonHeight = btnAccueil.getPreferredSize().height;
+        navBar.setPreferredSize(new Dimension(800, buttonHeight + 10));
 
         btnAccueil.addActionListener(e -> cardLayout.show(mainPanel, "Accueil"));
         btnAjouterMembre.addActionListener(e -> cardLayout.show(mainPanel, "AjouterMembre"));
@@ -144,7 +146,7 @@ public class BibliothequeApp extends JFrame {
         navBar.add(btnAfficherEmprunts);
         navBar.add(btnQuitter);
 
-        add(navBar, BorderLayout.NORTH);
+        add(navBar, BorderLayout.SOUTH);
 
         // Pages principales
         mainPanel.add(createAccueilPanel(), "Accueil");
@@ -158,25 +160,31 @@ public class BibliothequeApp extends JFrame {
     }
 
     private JPanel createAccueilPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(new Color(200, 220, 255));
-
+        // Panel personnalisé avec un arrière-plan image
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                // Charger l'image
+                ImageIcon backgroundIcon = new ImageIcon("image.png");
+                Image backgroundImage = backgroundIcon.getImage();
+                // Dessiner l'image à la taille du panel
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            }
+        };
+    
+        panel.setLayout(new BorderLayout()); // Définit un layout pour ajouter les composants
+    
         JLabel title = new JLabel("<html><h1>Bienvenue dans la gestion de bibliothèque</h1></html>", JLabel.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 24));
+        title.setForeground(Color.WHITE); // Pour que le texte soit visible sur l'image
+        title.setOpaque(true);
+        title.setBackground(new Color(0, 0, 0, 150));
+        title.setBounds(200, 100, 400, 50);
         panel.add(title, BorderLayout.NORTH);
-
-        JLabel description = new JLabel(
-            "<html><p style='text-align: center;'>"
-            + "Cette application permet de gérer les livres, les membres, "
-            + "et leurs emprunts.</p></html>",
-            JLabel.CENTER
-        );
-        description.setFont(new Font("Arial", Font.PLAIN, 16));
-        panel.add(description, BorderLayout.CENTER);
-
         return panel;
     }
-
+    
     private JPanel createAjouterMembrePanel() {
         JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
         panel.setBackground(new Color(240, 250, 240));

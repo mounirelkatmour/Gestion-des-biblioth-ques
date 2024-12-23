@@ -117,7 +117,7 @@ public class BibliothequeApp extends JFrame {
 
         // Barre de navigation
         JPanel navBar = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        navBar.setBackground(new Color(150, 75, 0));
+        navBar.setBackground(new Color(0, 0, 0, 190));
         
         JButton btnAccueil = new JButton("Accueil");
         JButton btnAjouterMembre = new JButton("Ajouter un Membre");
@@ -179,12 +179,30 @@ public class BibliothequeApp extends JFrame {
         title.setFont(new Font("Arial", Font.BOLD, 24));
         title.setForeground(Color.WHITE); // Pour que le texte soit visible sur l'image
         title.setOpaque(true);
-        title.setBackground(new Color(0, 0, 0, 150));
+        title.setBackground(new Color(0, 0, 0, 100));
         title.setBounds(200, 100, 400, 50);
         panel.add(title, BorderLayout.NORTH);
+    
+        JLabel description = new JLabel(
+            "<html>"
+            + "<div style='text-align: center; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold;'>"
+            + "<p style='line-height: 1.6; text-align: center;'>"
+            + "Gérez vos livres, vos membres et vos emprunts de façon simple et efficace."
+            + "</p>"
+            + "</div>"
+            + "</html>", JLabel.CENTER
+        );
+
+        description.setForeground(Color.BLACK); // Pour que le texte soit visible sur l'image
+        description.setOpaque(true);
+        description.setBackground(new Color(255, 255, 255, 150));
+        description.setBounds(200, 100, 400, 50);
+        panel.add(description, BorderLayout.CENTER);
+    
         return panel;
     }
     
+
     private JPanel createAjouterMembrePanel() {
         JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
         panel.setBackground(new Color(240, 250, 240));
